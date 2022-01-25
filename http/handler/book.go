@@ -12,7 +12,7 @@ func GetBookHandler(app *application.Application) echo.HandlerFunc {
 		c.Bind(&request)
 
 		var response *interactor.GetBookResponse
-		response = interactor.GetBookInteractor(&request)
+		response = interactor.GetBookInteractor(&request, app)
 
 		// TODO: Is there really a difference between echo.NewHTTPError & c.JSON with an error code + body?
 		//return echo.NewHTTPError(response.Staus, err)

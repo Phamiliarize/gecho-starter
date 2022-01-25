@@ -16,7 +16,7 @@ type BookRepository interface {
 func (p PostgresConn) FindOne(requestBook *entity.Book) (entity.Book, error) {
 	var book entity.Book
 
-	err := pgxscan.Get(context.Background(), p.DBC, &book, `SELECT * FROM "book" WHERE id = $1`, book.ID)
+	err := pgxscan.Get(context.Background(), p.DBC, &book, `SELECT * FROM "book" WHERE id = $1`, requestBook.ID)
 
 	return book, err
 }
