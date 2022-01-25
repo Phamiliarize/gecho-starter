@@ -7,17 +7,18 @@ import (
 	"github.com/georgysavva/scany/pgxscan"
 )
 
+// By implementing through the interface and entity, we allow these methods to change as needed with no impact on interactors
 type BookRepository interface {
-	One(id *uint32) (entity.Book, error)
+	FindOne(book *entity.Book) (entity.Book, error)
 }
 
 // Postgres
-func (p PostgresConn) One(id *uint32) (entity.Book, error) {
+func (p PostgresConn) FindOne(requestBook *entity.Book) (entity.Book, error) {
 	var book entity.Book
 
-	err := pgxscan.Get(context.Background(), p.DBC, &book, `SELECT * FROM "book" WHERE id = $1`, id)
+	err := pgxscan.Get(context.Background(), p.DBC, &book, `SELECT * FROM "book" WHERE id = $1`, book.ID)
 
 	return book, err
 }
 
-// In-memory/File etc could also go here and be a part of the interface. It's storage agnostic
+// Mongodb, an in-memory database, or even filesystem methods could go here, all obscured under one interface

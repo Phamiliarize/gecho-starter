@@ -41,7 +41,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/book/:id", handler.GetOneBook(&app))
+	e.GET("/book/:id", handler.GetBookHandler(&app))
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

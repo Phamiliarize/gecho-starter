@@ -1,33 +1,21 @@
 package handler
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-
 	"github.com/Phamiliarize/gecho-clean-starter/http/application"
-	"github.com/Phamiliarize/gecho-clean-starter/service"
+	"github.com/Phamiliarize/gecho-clean-starter/interactor"
 	"github.com/labstack/echo/v4"
 )
 
-func GetOneBook(app *application.Application) echo.HandlerFunc {
+func GetBookHandler(app *application.Application) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, err := strconv.Atoi(c.Param("id"))
-		uid := uint32(id)
-		if err != nil {
-			fmt.Println("Do something about this error...")
-		}
+		var request interactor.GetBookRequest
+		c.Bind(&request)
 
-		validbook, err := service.GetOneBook(&uid)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err)
-		}
+		var response *interactor.GetBookResponse
+		response = interactor.GetBookInteractor(&request)
 
-		book, err := app.Repo.Book.One(&validbook.ID)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong. Please try again.")
-		}
-
-		return c.JSON(http.StatusOK, &book)
+		// TODO: Is there really a difference between echo.NewHTTPError & c.JSON with an error code + body?
+		//return echo.NewHTTPError(response.Staus, err)
+		return c.JSON(response.Status, response.Body)
 	}
 }
