@@ -1,9 +1,6 @@
 package interactor
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
 	"github.com/Phamiliarize/gecho-clean-starter/http/application"
 )
@@ -12,36 +9,29 @@ import (
 // 	GetBookInteractor(request *GetBookRequest) *GetBookResponse
 // }
 
-type Book struct {
-	ID   uint32 `json:"id"`
-	Name string `json:"name"`
-	Read bool   `json:"read"`
-}
-
 type GetBookRequest struct {
 	ID uint32 `param:"id"`
 }
 
 type GetBookResponse struct {
-	Status int
-	Body   Book
+	ID   uint32 `json:"id"`
+	Name string `json:"name"`
+	Read bool   `json:"read"`
 }
 
-func GetBookInteractor(request *GetBookRequest, app *application.Application) *GetBookResponse {
+func GetBookInteractor(request *GetBookRequest, app *application.Application) (*GetBookResponse, error) {
 	var response GetBookResponse
 
 	var book entity.Book
 	book.ID = request.ID
 
 	result, err := app.Repo.Book.FindOne(&book)
-	if err != nil {
-		fmt.Println("how should we handle errors")
+
+	if err == nil {
+		response.ID = result.ID
+		response.Name = result.Name
+		response.Read = result.Read
 	}
 
-	response.Status = http.StatusOK
-	response.Body.ID = result.ID
-	response.Body.Name = result.Name
-	response.Body.Read = result.Read
-
-	return &response
+	return &response, err
 }
