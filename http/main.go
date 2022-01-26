@@ -33,6 +33,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
+	e.GET("/book", handler.GetBookListHandler)
 	e.GET("/book/:id", handler.GetBookHandler)
 
 	// Start server
