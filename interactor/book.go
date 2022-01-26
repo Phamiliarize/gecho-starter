@@ -1,11 +1,9 @@
 package interactor
 
 import (
-	b64 "encoding/base64"
-	"strconv"
-
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
+	"github.com/Phamiliarize/gecho-clean-starter/util"
 	"github.com/jinzhu/copier"
 )
 
@@ -58,19 +56,12 @@ func GetBookCollectionInteractor(request *GetBookCollectionRequest) (*GetBookCol
 	// Default is 0
 	if request.NextToken != "" {
 		// Convert nextToken to requestCursor
-		byteDecoded, err := b64.StdEncoding.DecodeString(request.NextToken)
+		decoded, err := util.Uint32FromB64(request.NextToken)
 		if err != nil {
 			return &response, err
 		}
 
-		decoded, err := strconv.ParseUint(string(byteDecoded), 10, 32)
-		if err != nil {
-			return &response, err
-		}
-
-		if decoded > 1 {
-			requestCursor.ID = uint32(decoded)
-		}
+		requestCursor.ID = decoded
 	}
 
 	if request.Limit <= 0 {
@@ -85,7 +76,7 @@ func GetBookCollectionInteractor(request *GetBookCollectionRequest) (*GetBookCol
 	// Handle Base64 Conversion
 	response.Count = count
 	if cursor.ID > 0 {
-		response.NextToken = b64.StdEncoding.EncodeToString([]byte(strconv.FormatInt(int64(cursor.ID), 10)))
+		response.NextToken = util.B64FromUint32(cursor.ID)
 	}
 	copier.Copy(&response.Items, &items)
 
