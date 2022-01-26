@@ -2,7 +2,7 @@ package interactor
 
 import (
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
-	"github.com/Phamiliarize/gecho-clean-starter/http/application"
+	"github.com/Phamiliarize/gecho-clean-starter/repository"
 )
 
 // type BookInteractor interface {
@@ -19,13 +19,13 @@ type GetBookResponse struct {
 	Read bool   `json:"read"`
 }
 
-func GetBookInteractor(request *GetBookRequest, app *application.Application) (*GetBookResponse, error) {
+func GetBookInteractor(request *GetBookRequest) (*GetBookResponse, error) {
 	var response GetBookResponse
 
 	var book entity.Book
 	book.ID = request.ID
 
-	result, err := app.Repo.Book.FindOne(&book)
+	result, err := repository.FindOne(&book)
 
 	if err == nil {
 		response.ID = result.ID
