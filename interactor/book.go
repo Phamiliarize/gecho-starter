@@ -4,25 +4,18 @@ import (
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/Phamiliarize/gecho-clean-starter/util"
-	"github.com/jinzhu/copier"
 )
 
-// type BookInteractor interface {
-// 	GetBookInteractor(request *GetBookRequest) *GetBookResponse
-// }
-
-type GetBookRequest struct {
+type BookInput struct {
 	ID uint32 `param:"id"`
 }
 
-type GetBookResponse struct {
-	ID   uint32 `json:"id"`
-	Name string `json:"name"`
-	Read bool   `json:"read"`
+type BookOutput struct {
+	entity.Book
 }
 
-func GetBookInteractor(request *GetBookRequest) (*GetBookResponse, error) {
-	var response GetBookResponse
+func BookInteractor(request *BookInput) (*BookOutput, error) {
+	var response BookOutput
 
 	var book entity.Book
 	book.ID = request.ID
@@ -38,19 +31,19 @@ func GetBookInteractor(request *GetBookRequest) (*GetBookResponse, error) {
 	return &response, err
 }
 
-type GetBookCollectionRequest struct {
-	Limit     int    `query:"Limit"`
-	NextToken string `query:"nextToken"`
+type BookCollectionInput struct {
+	Limit     int
+	NextToken string
 }
 
-type GetBookCollectionResponse struct {
-	Count     int               `json:"count"`
-	NextToken string            `json:"nextToken"`
-	Items     []GetBookResponse `json:"items"`
+type BookCollectionOutput struct {
+	Count     int
+	NextToken string
+	Items     entity.Books
 }
 
-func GetBookCollectionInteractor(request *GetBookCollectionRequest) (*GetBookCollectionResponse, error) {
-	var response GetBookCollectionResponse
+func BookCollectionInteractor(request *BookCollectionInput) (*BookCollectionOutput, error) {
+	var response BookCollectionOutput
 	var requestCursor entity.Book
 
 	// Default is 0
@@ -78,7 +71,7 @@ func GetBookCollectionInteractor(request *GetBookCollectionRequest) (*GetBookCol
 	if cursor.ID > 0 {
 		response.NextToken = util.B64FromUint32(cursor.ID)
 	}
-	copier.Copy(&response.Items, &items)
+	response.Items = items
 
 	return &response, err
 }

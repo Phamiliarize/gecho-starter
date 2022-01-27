@@ -2,10 +2,9 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/Phamiliarize/gecho-clean-starter/http/handler"
+	"github.com/Phamiliarize/gecho-clean-starter/http/controller/book"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -33,14 +32,9 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/book", handler.GetBookListHandler)
-	e.GET("/book/:id", handler.GetBookHandler)
+	e.GET("/book", book.GetBookListController)
+	e.GET("/book/:id", book.GetBookController)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
-}
-
-// Handler
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
 }
