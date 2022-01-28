@@ -5,13 +5,12 @@ import (
 	"testing"
 
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
-	"github.com/Phamiliarize/gecho-clean-starter/mock"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 )
 
 func TestBook_BookCollectionInteractor_DefaultInput(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{}
 
@@ -34,7 +33,7 @@ func TestBook_BookCollectionInteractor_DefaultInput(t *testing.T) {
 
 func TestBook_BookCollectionInteractor_CustomInput(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{Limit: 10, NextToken: "MTA="}
 
@@ -57,7 +56,7 @@ func TestBook_BookCollectionInteractor_CustomInput(t *testing.T) {
 
 func TestBook_BookCollectionInteractor_NoNext(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{Limit: 20}
 
@@ -80,7 +79,7 @@ func TestBook_BookCollectionInteractor_NoNext(t *testing.T) {
 
 func TestBook_BookCollectionInteractor_BadNextTokenError(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{NextToken: "ABC"}
 

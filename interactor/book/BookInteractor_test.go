@@ -5,13 +5,12 @@ import (
 	"testing"
 
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
-	"github.com/Phamiliarize/gecho-clean-starter/mock"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 )
 
 func TestBook_BookInteractor(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookInput{ID: 1}
 
@@ -28,7 +27,7 @@ func TestBook_BookInteractor(t *testing.T) {
 
 func TestBook_BookInteractor_ForwardsError(t *testing.T) {
 	var repo repository.BookRepository
-	repo = mock.BookRepositoryMock{}
+	repo = repository.BookRepositoryMock{}
 
 	input := BookInput{ID: 3}
 
