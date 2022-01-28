@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
-	"github.com/Phamiliarize/gecho-clean-starter/http/handler"
-	"github.com/Phamiliarize/gecho-clean-starter/repository"
+	"github.com/Phamiliarize/gecho-clean-starter/app"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,10 +20,15 @@ func main() {
 	}
 
 	// Initialize DBC Pool
-	err = repository.InitDB(os.Getenv("DATABASE_URL"))
+	dbPool, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Error initializing database connection pool.")
 	}
+
+	defer dbPool.Close()
+
+	// Instance App/Dependencies
+	app := app.InitializeApp(dbPool)
 
 	// Echo instance
 	e := echo.New()
@@ -32,8 +38,8 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/book", handler.GetList)
-	e.GET("/book/:id", handler.Get)
+	e.GET("/book", app.Handler.Book.BookGetList)
+	e.GET("/book/:id", app.Handler.Book.BookGet)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

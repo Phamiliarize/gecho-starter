@@ -3,71 +3,73 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/Phamiliarize/gecho-clean-starter/service"
 	"github.com/labstack/echo/v4"
 )
 
-type GetRequest struct {
+type BookHandler interface {
+	BookGet(c echo.Context) error
+	BookGetList(c echo.Context) error
+}
+
+type BookHandlerImplement struct {
+	Service service.BookService
+}
+
+type BookGetRequest struct {
 	ID uint32 `param:"id"`
 }
 
-type GetResponse struct {
+type BookGetResponse struct {
 	ID   uint32 `json:"id"`
 	Name string `json:"name"`
 	Read bool   `json:"read"`
 }
 
-func Get(c echo.Context) error {
-	var request GetRequest
+func (d BookHandlerImplement) BookGet(c echo.Context) error {
+	var request BookGetRequest
 	c.Bind(&request)
-
-	var repo repository.BookRepository
-	repo = &repository.Book{}
 
 	input := service.BookInput{ID: request.ID}
 
-	book, err := service.Book(&input, repo)
+	book, err := d.Service.Book(&input)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "An internal server error has occurred. Please try again!")
 	}
 
-	response := GetResponse{ID: book.ID, Name: book.Name, Read: book.Read}
+	response := BookGetResponse{ID: book.ID, Name: book.Name, Read: book.Read}
 
 	return c.JSON(http.StatusOK, &response)
 }
 
-type GetListRequest struct {
+type BookGetListRequest struct {
 	Limit     int    `query:"limit"`
 	NextToken string `query:"nextToken"`
 }
 
-type GetListResponse struct {
-	Count     int           `json:"count"`
-	NextToken string        `json:"nextToken"`
-	Items     []GetResponse `json:"items"`
+type BookGetListResponse struct {
+	Count     int               `json:"count"`
+	NextToken string            `json:"nextToken"`
+	Items     []BookGetResponse `json:"items"`
 }
 
-func GetList(c echo.Context) error {
-	var request GetListRequest
+func (d BookHandlerImplement) BookGetList(c echo.Context) error {
+	var request BookGetListRequest
 	c.Bind(&request)
 
 	input := service.BookCollectionInput{Limit: request.Limit, NextToken: request.NextToken}
 
-	var repo repository.BookRepository
-	repo = &repository.Book{}
-
-	bookCollection, err := service.BookCollection(&input, repo)
+	bookCollection, err := d.Service.BookCollection(&input)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "An internal server error has occurred. Please try again!")
 	}
 
-	response := GetListResponse{Count: bookCollection.Count, NextToken: bookCollection.NextToken, Items: make([]GetResponse, len(bookCollection.Items))}
+	response := BookGetListResponse{Count: bookCollection.Count, NextToken: bookCollection.NextToken, Items: make([]BookGetResponse, len(bookCollection.Items))}
 
 	for i, entity := range bookCollection.Items {
-		response.Items[i] = GetResponse{
+		response.Items[i] = BookGetResponse{
 			ID:   entity.ID,
 			Name: entity.Name,
 			Read: entity.Read,

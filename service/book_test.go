@@ -9,12 +9,12 @@ import (
 )
 
 func TestBook_Book(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookInput{ID: 1}
 
-	result, err := Book(&input, repo)
+	result, err := service.Book(&input)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -26,24 +26,24 @@ func TestBook_Book(t *testing.T) {
 }
 
 func TestBook_Book_ForwardsError(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookInput{ID: 3}
 
-	_, err := Book(&input, repo)
+	_, err := service.Book(&input)
 	if err == nil {
 		t.Errorf("Expected error, want: 'Not found.', got: '%v'.", err)
 	}
 }
 
 func TestBook_BookCollection_DefaultInput(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookCollectionInput{}
 
-	result, err := BookCollection(&input, repo)
+	result, err := service.BookCollection(&input)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -61,12 +61,12 @@ func TestBook_BookCollection_DefaultInput(t *testing.T) {
 }
 
 func TestBook_BookCollection_CustomInput(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookCollectionInput{Limit: 10, NextToken: "MTA="}
 
-	result, err := BookCollection(&input, repo)
+	result, err := service.BookCollection(&input)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -84,12 +84,12 @@ func TestBook_BookCollection_CustomInput(t *testing.T) {
 }
 
 func TestBook_BookCollection_NoNext(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookCollectionInput{Limit: 20}
 
-	result, err := BookCollection(&input, repo)
+	result, err := service.BookCollection(&input)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -107,12 +107,12 @@ func TestBook_BookCollection_NoNext(t *testing.T) {
 }
 
 func TestBook_BookCollection_BadNextTokenError(t *testing.T) {
-	var repo repository.BookRepository
-	repo = repository.BookRepositoryMock{}
+	var service BookService
+	service = BookServiceImplement{Repo: repository.BookRepositoryMock{}}
 
 	input := BookCollectionInput{NextToken: "ABC"}
 
-	_, err := BookCollection(&input, repo)
+	_, err := service.BookCollection(&input)
 	if err == nil {
 		t.Errorf("Expected error due to bad NextToken, got: '%v'.", err)
 	}

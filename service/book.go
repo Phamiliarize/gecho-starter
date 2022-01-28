@@ -6,6 +6,15 @@ import (
 	"github.com/Phamiliarize/gecho-clean-starter/util"
 )
 
+type BookService interface {
+	BookCollection(request *BookCollectionInput) (*BookCollectionOutput, error)
+	Book(request *BookInput) (*BookOutput, error)
+}
+
+type BookServiceImplement struct {
+	Repo repository.BookRepository
+}
+
 type BookCollectionInput struct {
 	Limit     int
 	NextToken string
@@ -17,7 +26,7 @@ type BookCollectionOutput struct {
 	Items     entity.Books
 }
 
-func BookCollection(request *BookCollectionInput, repo repository.BookRepository) (*BookCollectionOutput, error) {
+func (d BookServiceImplement) BookCollection(request *BookCollectionInput) (*BookCollectionOutput, error) {
 	var response BookCollectionOutput
 	var requestCursor entity.Book
 
@@ -36,7 +45,7 @@ func BookCollection(request *BookCollectionInput, repo repository.BookRepository
 		request.Limit = 10
 	}
 
-	items, count, cursor, err := repo.All(&requestCursor, request.Limit)
+	items, count, cursor, err := d.Repo.All(&requestCursor, request.Limit)
 	if err != nil {
 		return &response, err
 	}
@@ -59,13 +68,13 @@ type BookOutput struct {
 	entity.Book
 }
 
-func Book(request *BookInput, repo repository.BookRepository) (*BookOutput, error) {
+func (d BookServiceImplement) Book(request *BookInput) (*BookOutput, error) {
 	var response BookOutput
 
 	var book entity.Book
 	book.ID = request.ID
 
-	result, err := repo.FindByID(&book)
+	result, err := d.Repo.FindByID(&book)
 
 	if err == nil {
 		response.ID = result.ID

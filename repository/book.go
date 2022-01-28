@@ -5,28 +5,30 @@ import (
 
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
 	"github.com/georgysavva/scany/pgxscan"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// We use an interface so we can easily mock the Repository for testing
 type BookRepository interface {
 	FindByID(requestBook *entity.Book) (entity.Book, error)
 	All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error)
 }
 
-type Book struct{}
+type BookRepositoryImplement struct {
+	PgPool *pgxpool.Pool
+}
 
 // Postgres
 // Returns a single book utilizing the ID
-func (r Book) FindByID(requestBook *entity.Book) (entity.Book, error) {
+func (d BookRepositoryImplement) FindByID(requestBook *entity.Book) (entity.Book, error) {
 	var book entity.Book
 
-	err := pgxscan.Get(context.Background(), pgPool, &book, `SELECT * FROM "book" WHERE id = $1`, requestBook.ID)
+	err := pgxscan.Get(context.Background(), d.PgPool, &book, `SELECT * FROM "book" WHERE id = $1`, requestBook.ID)
 
 	return book, err
 }
 
 // Returns many books
-func (r Book) All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
+func (d BookRepositoryImplement) All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
 	var books entity.Books
 	var count int
 	var cursor entity.Book
@@ -35,7 +37,7 @@ func (r Book) All(requestCursor *entity.Book, limit int) (entity.Books, int, ent
 	canaryLimit := limit + 1
 
 	// Start a transaction to ensure row count
-	tx, err := pgPool.Begin(context.Background())
+	tx, err := d.PgPool.Begin(context.Background())
 	if err != nil {
 		return books, count, cursor, err
 	}
