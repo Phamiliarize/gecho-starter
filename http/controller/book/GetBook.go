@@ -3,7 +3,8 @@ package book
 import (
 	"net/http"
 
-	"github.com/Phamiliarize/gecho-clean-starter/interactor"
+	interactor "github.com/Phamiliarize/gecho-clean-starter/interactor/book"
+	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,9 +22,12 @@ func GetBookController(c echo.Context) error {
 	var request GetBookRequest
 	c.Bind(&request)
 
+	var repo repository.BookRepository
+	repo = &repository.BookRepo{}
+
 	input := interactor.BookInput{ID: request.ID}
 
-	book, err := interactor.BookInteractor(&input)
+	book, err := interactor.BookInteractor(&input, repo)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "An internal server error has occurred. Please try again!")

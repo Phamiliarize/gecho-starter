@@ -1,35 +1,10 @@
-package interactor
+package book
 
 import (
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/Phamiliarize/gecho-clean-starter/util"
 )
-
-type BookInput struct {
-	ID uint32 `param:"id"`
-}
-
-type BookOutput struct {
-	entity.Book
-}
-
-func BookInteractor(request *BookInput) (*BookOutput, error) {
-	var response BookOutput
-
-	var book entity.Book
-	book.ID = request.ID
-
-	result, err := repository.Book(&book)
-
-	if err == nil {
-		response.ID = result.ID
-		response.Name = result.Name
-		response.Read = result.Read
-	}
-
-	return &response, err
-}
 
 type BookCollectionInput struct {
 	Limit     int
@@ -42,7 +17,7 @@ type BookCollectionOutput struct {
 	Items     entity.Books
 }
 
-func BookCollectionInteractor(request *BookCollectionInput) (*BookCollectionOutput, error) {
+func BookCollectionInteractor(request *BookCollectionInput, repo repository.BookRepository) (*BookCollectionOutput, error) {
 	var response BookCollectionOutput
 	var requestCursor entity.Book
 
@@ -61,7 +36,7 @@ func BookCollectionInteractor(request *BookCollectionInput) (*BookCollectionOutp
 		request.Limit = 10
 	}
 
-	items, count, cursor, err := repository.BookList(&requestCursor, request.Limit)
+	items, count, cursor, err := repo.All(&requestCursor, request.Limit)
 	if err != nil {
 		return &response, err
 	}

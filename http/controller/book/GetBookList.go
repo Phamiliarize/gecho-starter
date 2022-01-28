@@ -3,9 +3,8 @@ package book
 import (
 	"net/http"
 
-	"github.com/Phamiliarize/gecho-clean-starter/entity"
-	"github.com/Phamiliarize/gecho-clean-starter/interactor"
-	"github.com/jinzhu/copier"
+	interactor "github.com/Phamiliarize/gecho-clean-starter/interactor/book"
+	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/labstack/echo/v4"
 )
 
@@ -14,10 +13,12 @@ type GetBookListRequest struct {
 	NextToken string `query:"nextToken"`
 }
 
+type BooksResponse []GetBookResponse
+
 type GetBookListResponse struct {
-	Count     int          `json:"count"`
-	NextToken string       `json:"nextToken"`
-	Items     entity.Books `json:"items"`
+	Count     int           `json:"count"`
+	NextToken string        `json:"nextToken"`
+	Items     BooksResponse `json:"items"`
 }
 
 func GetBookListController(c echo.Context) error {
@@ -26,16 +27,23 @@ func GetBookListController(c echo.Context) error {
 
 	input := interactor.BookCollectionInput{Limit: request.Limit, NextToken: request.NextToken}
 
-	bookCollection, err := interactor.BookCollectionInteractor(&input)
+	var repo repository.BookRepository
+	repo = &repository.BookRepo{}
+
+	bookCollection, err := interactor.BookCollectionInteractor(&input, repo)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "An internal server error has occurred. Please try again!")
 	}
 
-	response := GetBookListResponse{Count: bookCollection.Count, NextToken: bookCollection.NextToken, Items: make(entity.Books, 0)}
-	length := len(bookCollection.Items)
-	if length > 0 {
-		copier.Copy(&response.Items, bookCollection.Items)
+	response := GetBookListResponse{Count: bookCollection.Count, NextToken: bookCollection.NextToken, Items: make(BooksResponse, len(bookCollection.Items))}
+
+	for i, entity := range bookCollection.Items {
+		response.Items[i] = GetBookResponse{
+			ID:   entity.ID,
+			Name: entity.Name,
+			Read: entity.Read,
+		}
 	}
 
 	return c.JSON(http.StatusOK, &response)

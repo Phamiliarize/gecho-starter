@@ -7,9 +7,17 @@ import (
 	"github.com/georgysavva/scany/pgxscan"
 )
 
+// We use an interface so we can easily mock the Repository for testing
+type BookRepository interface {
+	FindByID(requestBook *entity.Book) (entity.Book, error)
+	All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error)
+}
+
+type BookRepo struct{}
+
 // Postgres
 // Returns a single book utilizing the ID
-func Book(requestBook *entity.Book) (entity.Book, error) {
+func (r BookRepo) FindByID(requestBook *entity.Book) (entity.Book, error) {
 	var book entity.Book
 
 	err := pgxscan.Get(context.Background(), pgPool, &book, `SELECT * FROM "book" WHERE id = $1`, requestBook.ID)
@@ -18,7 +26,7 @@ func Book(requestBook *entity.Book) (entity.Book, error) {
 }
 
 // Returns many books
-func BookList(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
+func (r BookRepo) All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
 	var books entity.Books
 	var count int
 	var cursor entity.Book
