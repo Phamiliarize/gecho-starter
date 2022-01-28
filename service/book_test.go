@@ -1,4 +1,4 @@
-package book
+package service
 
 import (
 	"reflect"
@@ -8,13 +8,42 @@ import (
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 )
 
-func TestBook_BookCollectionInteractor_DefaultInput(t *testing.T) {
+func TestBook_Book(t *testing.T) {
+	var repo repository.BookRepository
+	repo = repository.BookRepositoryMock{}
+
+	input := BookInput{ID: 1}
+
+	result, err := Book(&input, repo)
+	if err != nil {
+		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
+	}
+
+	test := &BookOutput{entity.Book{ID: 1, Name: "Test", Read: true}}
+	if !reflect.DeepEqual(test, result) {
+		t.Errorf("Mismatched value, want: %v, got: %v.", result, test)
+	}
+}
+
+func TestBook_Book_ForwardsError(t *testing.T) {
+	var repo repository.BookRepository
+	repo = repository.BookRepositoryMock{}
+
+	input := BookInput{ID: 3}
+
+	_, err := Book(&input, repo)
+	if err == nil {
+		t.Errorf("Expected error, want: 'Not found.', got: '%v'.", err)
+	}
+}
+
+func TestBook_BookCollection_DefaultInput(t *testing.T) {
 	var repo repository.BookRepository
 	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{}
 
-	result, err := BookCollectionInteractor(&input, repo)
+	result, err := BookCollection(&input, repo)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -31,13 +60,13 @@ func TestBook_BookCollectionInteractor_DefaultInput(t *testing.T) {
 	}
 }
 
-func TestBook_BookCollectionInteractor_CustomInput(t *testing.T) {
+func TestBook_BookCollection_CustomInput(t *testing.T) {
 	var repo repository.BookRepository
 	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{Limit: 10, NextToken: "MTA="}
 
-	result, err := BookCollectionInteractor(&input, repo)
+	result, err := BookCollection(&input, repo)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -54,13 +83,13 @@ func TestBook_BookCollectionInteractor_CustomInput(t *testing.T) {
 	}
 }
 
-func TestBook_BookCollectionInteractor_NoNext(t *testing.T) {
+func TestBook_BookCollection_NoNext(t *testing.T) {
 	var repo repository.BookRepository
 	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{Limit: 20}
 
-	result, err := BookCollectionInteractor(&input, repo)
+	result, err := BookCollection(&input, repo)
 	if err != nil {
 		t.Errorf("Unexpected error, want: nil, got: '%v'.", err)
 	}
@@ -77,13 +106,13 @@ func TestBook_BookCollectionInteractor_NoNext(t *testing.T) {
 	}
 }
 
-func TestBook_BookCollectionInteractor_BadNextTokenError(t *testing.T) {
+func TestBook_BookCollection_BadNextTokenError(t *testing.T) {
 	var repo repository.BookRepository
 	repo = repository.BookRepositoryMock{}
 
 	input := BookCollectionInput{NextToken: "ABC"}
 
-	_, err := BookCollectionInteractor(&input, repo)
+	_, err := BookCollection(&input, repo)
 	if err == nil {
 		t.Errorf("Expected error due to bad NextToken, got: '%v'.", err)
 	}

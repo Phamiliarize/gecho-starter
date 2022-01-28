@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Phamiliarize/gecho-clean-starter/http/controller/book"
+	"github.com/Phamiliarize/gecho-clean-starter/http/handler"
 	"github.com/Phamiliarize/gecho-clean-starter/repository"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -32,8 +32,8 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/book", book.GetBookListController)
-	e.GET("/book/:id", book.GetBookController)
+	e.GET("/book", handler.GetList)
+	e.GET("/book/:id", handler.Get)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

@@ -1,4 +1,4 @@
-package book
+package service
 
 import (
 	"github.com/Phamiliarize/gecho-clean-starter/entity"
@@ -17,7 +17,7 @@ type BookCollectionOutput struct {
 	Items     entity.Books
 }
 
-func BookCollectionInteractor(request *BookCollectionInput, repo repository.BookRepository) (*BookCollectionOutput, error) {
+func BookCollection(request *BookCollectionInput, repo repository.BookRepository) (*BookCollectionOutput, error) {
 	var response BookCollectionOutput
 	var requestCursor entity.Book
 
@@ -47,6 +47,31 @@ func BookCollectionInteractor(request *BookCollectionInput, repo repository.Book
 		response.NextToken = util.B64FromUint32(cursor.ID)
 	}
 	response.Items = items
+
+	return &response, err
+}
+
+type BookInput struct {
+	ID uint32 `param:"id"`
+}
+
+type BookOutput struct {
+	entity.Book
+}
+
+func Book(request *BookInput, repo repository.BookRepository) (*BookOutput, error) {
+	var response BookOutput
+
+	var book entity.Book
+	book.ID = request.ID
+
+	result, err := repo.FindByID(&book)
+
+	if err == nil {
+		response.ID = result.ID
+		response.Name = result.Name
+		response.Read = result.Read
+	}
 
 	return &response, err
 }

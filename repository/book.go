@@ -13,11 +13,11 @@ type BookRepository interface {
 	All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error)
 }
 
-type BookRepo struct{}
+type Book struct{}
 
 // Postgres
 // Returns a single book utilizing the ID
-func (r BookRepo) FindByID(requestBook *entity.Book) (entity.Book, error) {
+func (r Book) FindByID(requestBook *entity.Book) (entity.Book, error) {
 	var book entity.Book
 
 	err := pgxscan.Get(context.Background(), pgPool, &book, `SELECT * FROM "book" WHERE id = $1`, requestBook.ID)
@@ -26,7 +26,7 @@ func (r BookRepo) FindByID(requestBook *entity.Book) (entity.Book, error) {
 }
 
 // Returns many books
-func (r BookRepo) All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
+func (r Book) All(requestCursor *entity.Book, limit int) (entity.Books, int, entity.Book, error) {
 	var books entity.Books
 	var count int
 	var cursor entity.Book
